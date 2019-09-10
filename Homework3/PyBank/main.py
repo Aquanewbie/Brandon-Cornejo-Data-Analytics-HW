@@ -1,11 +1,11 @@
 import os
 import csv
+
+print ("Financial Analysis")
+print ("--------------------------")
 csvpath = "budget_data.csv"
 with open(csvpath, newline="") as csvfile:
     csvreader = csv.reader(csvfile, delimiter=",")
-    print(csvreader)
-    csvheader = next(csvreader)
-    print(f"CSV Header: {csvheader}")
 
 'Calculate Months'
 num_lines = 0
@@ -43,7 +43,7 @@ with open(csvpath, newline="") as rowcount:
 
 AvChange = '${:.2f}'.format(int(changestotal)/totalchanges)
 changestotal = '${:.2f}'.format(changestotal)
-print (F'Changes total: {changestotal}')
+"print (F'Changes total: {changestotal}')"
 print (F'Average Change: {AvChange}')
 
 
@@ -57,18 +57,20 @@ with open(csvpath, newline="") as rowcount:
         if int(c[1]) > previousprofit:
             if int(c[1]) > greatestincrease:
                 greatestincrease = (int(c[1]) - previousprofit)
+                greatestincreasemonth= c[0]
             previousprofit = int(c[1])
         else:
             if int(c[1]) < greatestdecrease:
                 greatestdecrease= (int(c[1]) - previousprofit)
+                greatestdecreasemonth= c[0]
             previousprofit = int(c[1])
 
         
 
 greatestincrease = '${:.2f}'.format(int(greatestincrease))
-print (F'Greatest Increase: {greatestincrease}')
+print (F'Greatest Increase: {greatestincreasemonth} ({greatestincrease})')
 greatestdecrease = '${:.2f}'.format(int(greatestdecrease))
-print (F'Greatest Decrease: {greatestdecrease}')
+print (F'Greatest Decrease: {greatestdecreasemonth} ({greatestdecrease})')
                 
 
 
