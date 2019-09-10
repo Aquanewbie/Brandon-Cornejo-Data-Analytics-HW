@@ -13,7 +13,7 @@ with open(csvpath) as rowcount:
     next(rowcount)
     for i in rowcount:
         num_lines += 1
-months = (num_lines-1)
+months = num_lines
 print (months)
 
 'Add sum of cells in Profit/Loss'
@@ -22,17 +22,25 @@ with open(csvpath, newline="") as rowcount:
     rowcountreader = csv.reader(rowcount, delimiter=",")
     next(rowcountreader)
     for a in rowcountreader:
-        print(a)
+        'print(a)'
         nettotal += int(a[1])
 print (nettotal)
-'The average of the changes in "Profit/Losses" over the entire period'
-avechangemath = float(nettotal/months)
-print (avechangemath)
-AveChangePercentage = (100 * avechangemath)
-print (f"Average Profit between Jane 2010 and Feb 2017: {AveChangePercentage}")
 
-'The greatest increase in profits (date and amount) over the entire period'
-'The greatest decrease in losses (date and amount) over the entire period'
+'The average of the changes in "Profit/Losses" over the entire period'
+
+with open(csvpath, newline="") as rowcount:
+    changestotal = 0
+    totalchanges = int(months-1)
+    rowcountreader = csv.reader(rowcount, delimiter=",")
+    next(rowcountreader)
+    prev_line = 0
+    for b in rowcountreader: 
+        if b != prev_line:
+            changestotal = changestotal + (int(prev_line)[1]-int(b)[1])
+            prev_line = prev_line + 1
+pqt = int(changestotal)/totalchanges
+print (pqt)
+
 
 
 
