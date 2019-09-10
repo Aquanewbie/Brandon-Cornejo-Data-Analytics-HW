@@ -33,14 +33,28 @@ with open(csvpath, newline="") as rowcount:
     totalchanges = int(months-1)
     rowcountreader = csv.reader(rowcount, delimiter=",")
     next(rowcountreader)
-    prev_line = 0
+    prevline = 867884
     for b in rowcountreader: 
-        if b != prev_line:
-            changestotal = changestotal + (int(prev_line)[1]-int(b)[1])
-            prev_line = prev_line + 1
+        if int(b[1]) != prevline:
+            changestotal += (int(b[1]) - prevline)
+            prevline = int(b[1])
+
+print (F'Changes total: {changestotal}')
 pqt = int(changestotal)/totalchanges
 print (pqt)
 
+with open(csvpath, newline="") as rowcount:
+    changestotal = 0
+    totalchanges = int(months-1)
+    rowcountreader = csv.reader(rowcount, delimiter=",")
+    next(rowcountreader)
+
+
+'Total Months: 86'
+'Total: $38382578'
+'Average  Change: $-2315.12'
+'Greatest Increase in Profits: Feb-2012 ($1926159)'
+'Greatest Decrease in Profits: Sep-2013 ($-2196167)'
 
 
 
