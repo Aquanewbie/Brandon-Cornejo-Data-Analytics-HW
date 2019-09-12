@@ -1,0 +1,11 @@
+Election Results
+['Khan', 'Correy', 'Li', "O'Tooley"]
+Khan Vote %: 63%
+Khan Total Votes: 2218231
+Correy Vote %: 20%
+Correy Total Votes: 704200
+Li Vote %: 14%
+Li Total Votes: 492940
+O'Tooley Vote %: 3%
+O'Tooley Total Votes: 105630
+Khan is the winner.

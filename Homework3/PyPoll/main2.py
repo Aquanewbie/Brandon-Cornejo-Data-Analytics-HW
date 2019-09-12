@@ -68,7 +68,26 @@ elif max(CandidateVotesList) == Livotes:
 else:
     print ("O'Tooley is the winner.")
 
-
+f= open("Vote-Counting.txt","w+")
+f.write("Election Results")
+f.write(F'\n{listofcandidates}')
+f.write (F'\nKhan Vote %: {Khanpercent}')
+f.write (F'\nKhan Total Votes: {Khanvotes}')
+f.write (F'\nCorrey Vote %: {Correypercent}')
+f.write (F'\nCorrey Total Votes: {Correyvotes}')
+f.write (F'\nLi Vote %: {Lipercent}')
+f.write (F'\nLi Total Votes: {Livotes}')
+f.write (F"\nO'Tooley Vote %: {OTooleypercent}")
+f.write (F"\nO'Tooley Total Votes: {OTooleyvotes}")
+if max(CandidateVotesList) == Khanvotes:
+    f.write ('\nKhan is the winner.')
+elif max(CandidateVotesList) == Correyvotes:
+    f.write ('\nCorrey is the winner.')
+elif max(CandidateVotesList) == Livotes:
+    f.write ('\nLi is the winner.')
+else:
+    f.write ("\nO'Tooley is the winner.")
+f.close()
 '* The winner of the election based on popular vote.'
 
 '* As an example, your analysis should look similar to the one below:'

@@ -46,7 +46,7 @@ changestotal = '${:.2f}'.format(changestotal)
 "print (F'Changes total: {changestotal}')"
 print (F'Average Change: {AvChange}')
 
-
+'Greatest Increases and Decreases'
 with open(csvpath, newline="") as rowcount:
     previousprofit = 867884
     greatestincrease= 0
@@ -65,26 +65,24 @@ with open(csvpath, newline="") as rowcount:
                 greatestdecreasemonth= c[0]
             previousprofit = int(c[1])
 
-        
+
 
 greatestincrease = '${:.2f}'.format(int(greatestincrease))
 print (F'Greatest Increase: {greatestincreasemonth} ({greatestincrease})')
 greatestdecrease = '${:.2f}'.format(int(greatestdecrease))
 print (F'Greatest Decrease: {greatestdecreasemonth} ({greatestdecrease})')
-                
+'Export to txt file'        
+d= open("Budget.txt","w+")
+d.write("Financial Analysis")
+d.write("\n--------------------------")
+d.write(F"\nTotal Months: {months}")
+d.write(F"\nNet Total: {nettotal}")
+d.write(F"\nAverage Change: {AvChange}")
+d.write(F'\nGreatest Increase: {greatestincreasemonth} ({greatestincrease})')
+d.write(F'\nGreatest Decrease: {greatestdecreasemonth} ({greatestdecrease})')
 
+d.close()
 
-
-
-'Total Months: 86'
-'Total: $38382578'
-'Average  Change: $-2315.12'
-'Greatest Increase in Profits: Feb-2012 ($1926159)'
-'Greatest Decrease in Profits: Sep-2013 ($-2196167)'
-
-
-
-'The net total amount of "Profit/Losses" over the entire period'
 
     
     
