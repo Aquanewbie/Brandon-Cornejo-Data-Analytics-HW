@@ -4,6 +4,9 @@ import sqlalchemy
 from sqlalchemy.ext.automap import automap_base
 from sqlalchemy.orm import Session
 from sqlalchemy import create_engine, func
+import datetime as dt
+from datetime import datetime
+import statistics as st
 
 from flask import Flask, jsonify
 
@@ -51,7 +54,9 @@ def welcome():
     return (
         f"/api/v1.0/precipitation <br/>"
         f"/api/v1.0/stations <br/>"
-        f"/api/v1.0/tobs"
+        f"/api/v1.0/tobs<br/>"
+        f"Input a Start Date (Format: YYYY-MM-DD) <start> and an End Date (Format: YYYY-MM-DD) in <end> to retrieve Temperature ranges info <br/>"
+        f"/api/v1.0/<start>/<end>"
     )
 
 @app.route("/api/v1.0/precipitation")
@@ -90,22 +95,77 @@ def stations():
     return jsonify(stationlist)
 
 @app.route("/api/v1.0/tobs")
-def stations():
+def tobs():
     # Create our session (link) from Python to the DB
     session = Session(engine)
 
-    #Convert the query results to a Dictionary using `date` as the key and `prcp` as the value.
+    #Query for the dates and temperature observations from a year from the last data point
     # Query all passengers
-    results = session.query(Station.station).all()
+    
+    #Find Last Date
+    Results = session.query(Measurement.date)
+    LastDate=Results[-1]
 
     session.close()
 
-    stationlist = []
-    for station in results:
-        stationlist.append(station)
+    Lastdate_object = dt.datetime.strptime(LastDate[0], '%Y-%m-%d')
+    Twelvemonths = Lastdate_object - dt.timedelta(days=365)
+    Twelvemonthsago = Twelvemonths.strftime('%Y-%m-%d')
+    results = session.query(Measurement.date, Measurement.tobs).filter(Measurement.date >= Twelvemonthsago)
 
-    return jsonify(stationlist)
+    session.close()
 
+    templist = []
+    for date, tobs in results:
+        tobs_dict = {date: tobs}
+        templist.append(tobs_dict)
+        
+    return jsonify(templist)
+
+  
+
+@app.route("/api/v1.0/<start>")
+def starttoend(start):
+    """When given the start only, calculate `TMIN`, `TAVG`, and `TMAX` for all dates greater than and equal to the start date."""
+    #Convert Given Date to a Date Python Can use to Calculate
+    Startdate = dt.datetime.strptime(start, '%Y-%m-%d')
+     #Find Last Date
+    session = Session(engine)
+    Results = session.query(Measurement.date)
+    LastDate=Results[-1]
+    session.close()
+    
+    Timespan = session.query(Measurement.tobs).filter(Measurement.date >= Startdate)
+
+    session.close()
+    return (   
+        f"Only given a start date <br/>"
+        f"Temperature ranges between {start} and {LastDate[0]}: <br/>"
+        f"Temperature Minimum: {min(Timespan)} <br/>"
+        f"Temperature Maximum: {max(Timespan)} <br/>"
+        #f"Temperature Average: {st.mean(Timespan)}"
+    )  
+  # Return a JSON list of the minimum temperature, the average temperature, and the max temperature for a given start or start-end range.
+
+  # When given the start only, calculate `TMIN`, `TAVG`, and `TMAX` for all dates greater than and equal to the start date.
+
+  # When given the start and the end date, calculate the `TMIN`, `TAVG`, and `TMAX` for dates between the start and end date inclusive.
+ # `/api/v1.0/<start>` and `/api/v1.0/<start>/<end>`
+@app.route("/api/v1.0/<start>/<end>")
+def starttoend(start,end):
+    """When given the start and the end date, calculate the `TMIN`, `TAVG`, and `TMAX` for dates between the start and end date inclusive."""
+    Startdate = dt.datetime.strptime(start, '%Y-%m-%d')
+    Enddate = dt.datetime.strptime(end, '%Y-%m-%d')
+    session = Session(engine)
+    Timespan = session.query(Measurement.tobs).filter(Measurement.date >= Startdate).filter(Measurement.date <= Enddate)
+    session.close()
+    
+    return(
+        f"Temperature ranges between {start} and {end}: <br/>"
+        f"Temperature Minimum: {min(Timespan)} <br/>"
+        f"Temperature Maximum: {max(Timespan)} "
+        #f"Temperature Average: {AVG(Timespan)} <br/>"
+    )
 if __name__ == '__main__':
     app.run(debug=True)
 
