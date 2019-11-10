@@ -51,12 +51,18 @@ app = Flask(__name__)
 @app.route("/")
 def welcome():
     """List all available api routes."""
+    breakline=("_________________________________________________________________________________________________________________________________<br/>")
     return (
-        f"/api/v1.0/precipitation <br/>"
-        f"/api/v1.0/stations <br/>"
+        f"/api/v1.0/precipitation<br/>"
+        f"{breakline}"
+        f"/api/v1.0/stations<br/>"
+        f"{breakline}"
         f"/api/v1.0/tobs<br/>"
+        f"{breakline}"
         f"Input a Start Date (Format: YYYY-MM-DD) <start> and an End Date (Format: YYYY-MM-DD) in <end> to retrieve Temperature ranges info <br/>"
-        f"/api/v1.0/<start>/<end>"
+        f"  <br/>"
+        f"/api/v1.0/YYYY-MM-DD/YYYY-MM-DD<br/>"
+        f"{breakline}"
     )
 
 @app.route("/api/v1.0/precipitation")
@@ -123,9 +129,8 @@ def tobs():
     return jsonify(templist)
 
   
-
 @app.route("/api/v1.0/<start>")
-def starttoend(start):
+def starttofalseend(start):
     """When given the start only, calculate `TMIN`, `TAVG`, and `TMAX` for all dates greater than and equal to the start date."""
     #Convert Given Date to a Date Python Can use to Calculate
     Startdate = dt.datetime.strptime(start, '%Y-%m-%d')
@@ -135,16 +140,20 @@ def starttoend(start):
     LastDate=Results[-1]
     session.close()
     
-    Timespan = session.query(Measurement.tobs).filter(Measurement.date >= Startdate)
+    Timespan = session.query(func.min(Measurement.tobs),
+                             func.avg(Measurement.tobs),
+                             func.max(Measurement.tobs)).filter(Measurement.date >= Startdate).all()
+    print(Timespan)
 
     session.close()
-    return (   
+    return (
         f"Only given a start date <br/>"
-        f"Temperature ranges between {start} and {LastDate[0]}: <br/>"
-        f"Temperature Minimum: {min(Timespan)} <br/>"
-        f"Temperature Maximum: {max(Timespan)} <br/>"
-        #f"Temperature Average: {st.mean(Timespan)}"
-    )  
+        f"Temperature ranges between {start} and the default last date of {LastDate[0]}: <br/>"
+        f"Temperature Minimum: {Timespan[0][0]} ° F<br/>"
+        f"Temperature Average: {Timespan[0][1]} ° F<br/>"
+        f"Temperature Maximum: {Timespan[0][2]} ° F<br/>"
+    )
+
   # Return a JSON list of the minimum temperature, the average temperature, and the max temperature for a given start or start-end range.
 
   # When given the start only, calculate `TMIN`, `TAVG`, and `TMAX` for all dates greater than and equal to the start date.
@@ -157,14 +166,16 @@ def starttoend(start,end):
     Startdate = dt.datetime.strptime(start, '%Y-%m-%d')
     Enddate = dt.datetime.strptime(end, '%Y-%m-%d')
     session = Session(engine)
-    Timespan = session.query(Measurement.tobs).filter(Measurement.date >= Startdate).filter(Measurement.date <= Enddate)
+    Timespan = session.query(func.min(Measurement.tobs),
+                             func.avg(Measurement.tobs),
+                             func.max(Measurement.tobs)).filter(Measurement.date >= Startdate).filter(Measurement.date <= Enddate).all()
     session.close()
     
     return(
-        f"Temperature ranges between {start} and {end}: <br/>"
-        f"Temperature Minimum: {min(Timespan)} <br/>"
-        f"Temperature Maximum: {max(Timespan)} "
-        #f"Temperature Average: {AVG(Timespan)} <br/>"
+        f"Temperature ranges between {start} and {end}:<br/>"
+        f"Temperature Minimum: {Timespan[0][0]} ° F<br/>"
+        f"Temperature Average: {Timespan[0][1]} ° F<br/>"
+        f"Temperature Maximum: {Timespan[0][2]} ° F<br/>"
     )
 if __name__ == '__main__':
     app.run(debug=True)
