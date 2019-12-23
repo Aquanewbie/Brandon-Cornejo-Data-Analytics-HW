@@ -21,8 +21,8 @@ def internetscrape():
     browser.visit(url)
     html = browser.html
     soup = BeautifulSoup(html, 'html.parser')
-    Title = soup.find('div', class_='content_title').text
-    Paragraph = soup.find('div', class_='article_teaser_body').text
+    Title = soup.find('div', class_='content_title').get_text()
+    Paragraph = soup.find('div', class_='article_teaser_body').get_text()
 
     #* Visit the url for JPL Featured Space Image [here]
     #(https://www.jpl.nasa.gov/spaceimages/?search=&category=Mars).
