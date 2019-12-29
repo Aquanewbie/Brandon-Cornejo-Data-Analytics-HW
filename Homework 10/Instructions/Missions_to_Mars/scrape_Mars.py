@@ -6,13 +6,8 @@ import requests
 from splinter import Browser
 import datetime as dt
 
-def dothis():
-    return(
-        f"Have a nice day!"
-    )
 def internetscrape():
-    executable_path = {'executable_path':"chromedriver"}
-    browser = Browser('chrome', **executable_path, headless=True)
+    browser = Browser("chrome", executable_path="chromedriver", headless=True)
     
     #* Scrape the [NASA Mars News Site](https://mars.nasa.gov/news/) 
     # and collect the latest News Title and Paragraph Text. 
@@ -39,8 +34,7 @@ def internetscrape():
     Img = soup.find('a', class_='button fancybox')
     ImgPath= (Img['data-fancybox-href'])
     featured_image_url = (f'https://www.jpl.nasa.gov{ImgPath}')
-    featured_image_url
-    print (featured_image_url)
+
 
     #* Visit the Mars Weather twitter account [here](https://twitter.com/marswxreport?lang=en) 
     #and scrape the latest Mars weather tweet from the page. Save the tweet text for the 
@@ -55,7 +49,6 @@ def internetscrape():
     LatestWeatherTweet=soup.find("div", {"data-reply-to-users-json":"""[{"id_str":"786939553","screen_name":"MarsWxReport","name":"Mars Weather","emojified_name":{"text":"Mars Weather","emojified_text_as_html":"Mars Weather"}}]"""})
     mars_weather=LatestWeatherTweet.p.text
 
-
     ### Mars Facts
     #* Visit the Mars Facts webpage [here](https://space-facts.com/mars/) and use Pandas to scrape the table 
     #containing facts about the planet including Diameter, Mass, etc.
@@ -66,10 +59,17 @@ def internetscrape():
     html = browser.html
     soup = BeautifulSoup(html, 'html.parser')
 
-    MarsDataList=[]
+    MarsDataList1=[]
+    MarsDataList2=[]
     MarsData=soup.find('tbody')
     for i in MarsData:
-        MarsDataList.append(i.text)
+        MarsDataList1.append(i.find('td', class_="column-1").get_text())
+        MarsDataList2.append(i.find('td', class_="column-2").get_text())
+    #Create Pandas Dataframe
+    df = pd.DataFrame(MarsDataList2,  MarsDataList1)
+    #Set to Dataframe to HTML
+    MarsDataHTML = (df.to_html(classes="table table-striped"))
+
 
     ### Mars Hemispheres
     #* Visit the USGS Astrogeology site [here](https://astrogeology.usgs.gov/search/results?q=hemisphere+enhanced&k1=target&v1=Mars) 
@@ -107,7 +107,7 @@ def internetscrape():
         soup = BeautifulSoup(html, 'lxml')
         Img = soup.find('img', class_="wide-image")
         ImagePath = Img['src']
-        MarsHemisphereListUrls.append(f'https://www.jpl.nasa.gov{ImagePath}')
+        MarsHemisphereListUrls.append(f'https://astrogeology.usgs.gov/{ImagePath}')
 
     Hemisphere1Url=MarsHemisphereListUrls[0]
     Hemisphere2Url=MarsHemisphereListUrls[1]
@@ -125,13 +125,12 @@ def internetscrape():
         "ImageandUrl": featured_image_url,
         "HemisphereURLDict": hemisphere_image_urls,
         "WeatherTweet": mars_weather,
-        "MarsDataDF": MarsDataList,
+        "MarsDataHTML": MarsDataHTML,
         "last_modified": dt.datetime.now()
     }
 
-    return (infoscraped)
-
+    browser.quit()
+    return infoscraped
     
-
 if __name__ == "__main__":
     print('Yup')
