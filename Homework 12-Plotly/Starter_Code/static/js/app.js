@@ -1,33 +1,13 @@
-// Create Iterable Variable 
-var K = 0
-
-// function init(){
-//   var selector= d3.select("#selDataset");
-//   d3.json("/static/data/samples.json").then((data) => {
-//       var sampleNames= data.names;
-//       sampleNames.forEach((sample) => {
-//           selector
-//           .append("option")
-//           .text(sample)
-//           .property("value", sample);
-
-//       });
-// //first chart sample
-//       var firstSample= sampleNames[0];
-//       buildCharts(firstSample);
-//       buildMetadata(firstSample);
-//   });
-// };
-
-// init();
-
+// // Create Iterable Variable Based
+var K=0
+var namesArray= [];
+var metadataArray = [];
+var samplesArray = [];
 // ____________________________________
+// Grab Data From JSON and Initiate Plot Functions with JSON Data
 function VisualizeCharts() {
   d3.json("/static/data/samples.json").then(function(data) {
   console.log(data);
-  var namesArray= [];
-  var metadataArray = [];
-  var samplesArray = [];
   var i;
   for (i = 0; i < data.names.length; i++) {
     namesArray.push(data.names[i]);
@@ -35,7 +15,7 @@ function VisualizeCharts() {
     samplesArray.push(data.samples[i]);};
   for (i=0; i <namesArray.length; i++) {
   d3.select("#selDataset").append("option").text(namesArray[i]).property("value", namesArray[i]);
-  }
+  };
   
   // Call on Chart Formats
   BubbleChartFormat(samplesArray);
@@ -48,46 +28,41 @@ var trace1 = {
   y: B[K].sample_values,
   mode: 'markers',
   text: B[K].otu_labels,
-  marker: {size: B[K].samples_values}
+  marker: {
+    size: B[K].sample_values,
+    color: B[K].otu_ids,
+    colorscale: "Portland"
+  }
 };
 var data = [trace1];
 var layout = {
-    title: 'Marker Size',
+    title: 'Bacteria Cultures per Sample',
     showlegend: false,
-    height: 600,
-    width: 600,
+    height: 500,
+    width: 1000,
     xaxis: { title: "OTU ID" }};
 Plotly.newPlot('bubble', data, layout);};
 
 // ____________________________________
 function HorizontalBarFormat(H) { 
-  var trace1 = {
-  y: ((H[K].otu_ids).slice(0,10)),
-  x: H[K].sample_values.slice(0,10),
-  text: ((H[K].otu_ids).slice(0,10)),
+  var trace1 = [{
+  y: H[K].otu_ids.slice(0,10).map(otuID => `OTU ${otuID}`).reverse(),
+  x: H[K].sample_values.slice(0,10).reverse(),
+  text: (H[K].otu_ids).slice(0,10).reverse(),
   orientation: 'h',
-  type: 'bar'};
+  type: 'bar'}];
   var Layout = {
     title: "Top Ten Bacteria",
     margin: {t: 50, l: 250}};
   Plotly.newPlot("bar", trace1, Layout);
-  console.log(H[K].sample_values.slice(0,10))
-  console.log(((H[K].otu_ids).slice(0,10)))
 };
-
+// ____________________________________
+// Visualize Chart Based on First SampleID (var K = 0)
 VisualizeCharts();
-// var yticks= otu_ids.slice(0,10).map(otuID => `OTU ${otuID}`).reverse();
-// var barData= [{
-//     y: yticks,
-//     x: sample_values.slice(0,10).reverse(),
-//     text: otu_labels.slice(0,10).reverse(),
-//     orientation: 'h',
-//     type: 'bar'
-// }];
-
-// var barLayout = {
-//     title: "Top 10 Bacteria Cultures Found",
-//     margin: {t: 50, l: 150}
-// };
-
-// Plotly.newPlot("bar", barData, barLayout);
+// Change the Value of K as New SampleIDs are selected.
+// ____________________________________
+function optionChanged(value) {
+  // Get Index of SampleID from namesArray to Iterate through appended Lists 
+  K = namesArray.indexOf(value)
+  VisualizeCharts();
+};
